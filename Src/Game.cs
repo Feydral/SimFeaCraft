@@ -42,7 +42,7 @@ public class Game : GameWindow
 
     protected override void OnRenderFrame(FrameEventArgs args)
     {
-        GL.ClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+        GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         GL.Clear(ClearBufferMask.ColorBufferBit);
 
         Context.SwapBuffers();
