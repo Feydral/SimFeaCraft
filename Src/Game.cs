@@ -1,5 +1,7 @@
 ﻿using OpenTK.Windowing.Desktop;
 using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
+using OpenTK.Graphics.OpenGL4;
 
 namespace SimFeaCraft;
 
@@ -15,9 +17,32 @@ public class Game : GameWindow
         CenterWindow(new Vector2i(windowWidth, windowHeight));
     }
 
-    public override void Run()
+    protected override void OnResize(ResizeEventArgs args)
     {
+        GL.Viewport(0, 0, args.Width, args.Height);
+        windowWidth = args.Width;
+        windowHeight = args.Height;
+        base.OnResize(args);
+    }
 
+    protected override void OnLoad()
+    {
+        base.OnLoad();
+    }
+
+    protected override void OnUnload()
+    {
+        base.OnUnload();
+    }
+
+    protected override void OnUpdateFrame(FrameEventArgs args)
+    {
+        base.OnUpdateFrame(args);
+    }
+
+    protected override void OnRenderFrame(FrameEventArgs args)
+    {
+        base.OnRenderFrame(args);
     }
 }
 
