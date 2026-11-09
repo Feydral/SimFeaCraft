@@ -38,6 +38,10 @@ public class Game : GameWindow
 
     protected override void OnLoad()
     {
+        Logger.Info("main", "Test Info!");
+        Logger.Warning("main", "Test Warning!");
+        Logger.Error("main", "Test Error!");
+
         vertexArrayObject = GL.GenVertexArray();
         vertexBufferObject = GL.GenBuffer();
 
