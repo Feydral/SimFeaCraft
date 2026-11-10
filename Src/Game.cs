@@ -12,13 +12,23 @@ public class Game : GameWindow
 
     float[] vertices =
     [
-        0.0f, 0.5f, 0.0f,
-        -0.5f, -0.5f, 0.0f,
+        -0.5f, 0.5f, 0.0f,
+        0.5f, 0.5f, 0.0f,
         0.5f, -0.5f, 0.0f,
+        -0.5f, -0.5f, 0.0f
+    ];
+
+    uint[] indices =
+    [
+        0, 1, 2,
+        2, 3, 0,
     ];
 
     int vertexArrayObject;
     int vertexBufferObject;
+
+    int elementBufferObject;
+
     int shaderProgram;
 
     public Game(int windowWidth, int windowHeight) : base(GameWindowSettings.Default, NativeWindowSettings.Default)
@@ -52,6 +62,10 @@ public class Game : GameWindow
         GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 0, 0);
         GL.EnableVertexArrayAttrib(vertexArrayObject, 0);
 
+        elementBufferObject = GL.GenBuffer();
+        GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
+        GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.StaticDraw);
+
         shaderProgram = GL.CreateProgram();
 
         int vertexShader = GL.CreateShader(ShaderType.VertexShader);
@@ -78,6 +92,7 @@ public class Game : GameWindow
         GL.DeleteBuffer(vertexBufferObject);
         GL.DeleteVertexArray(vertexArrayObject);
         GL.DeleteProgram(shaderProgram);
+        GL.DeleteBuffer(elementBufferObject);
 
         base.OnUnload();
     }
@@ -94,7 +109,8 @@ public class Game : GameWindow
 
         GL.UseProgram(shaderProgram);
         GL.BindVertexArray(vertexArrayObject);
-        GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
+        GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
+        GL.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, 0);
 
         Context.SwapBuffers();
 
