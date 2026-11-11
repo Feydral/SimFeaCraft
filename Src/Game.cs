@@ -11,27 +11,95 @@ public class Game : GameWindow
     int windowWidth;
     int windowHeight;
 
-    float[] vertices =
+    List<Vector3> vertices =
     [
-        -0.5f, 0.5f, 0.0f,
-        0.5f, 0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        -0.5f, -0.5f, 0.0f
+        new Vector3(-0.5f, 0.5f, 0.5f),
+        new Vector3(0.5f, 0.5f, 0.5f),
+        new Vector3(0.5f, -0.5f, 0.5f),
+        new Vector3(-0.5f, -0.5f, 0.5f),
+
+        new Vector3(0.5f, 0.5f, 0.5f),
+        new Vector3(0.5f, 0.5f, -0.5f),
+        new Vector3(0.5f, -0.5f, -0.5f),
+        new Vector3(0.5f, -0.5f, 0.5f),
+
+        new Vector3(0.5f, 0.5f, -0.5f),
+        new Vector3(-0.5f, 0.5f, -0.5f),
+        new Vector3(-0.5f, -0.5f, -0.5f),
+        new Vector3(0.5f, -0.5f, -0.5f),
+
+        new Vector3(-0.5f, 0.5f, -0.5f),
+        new Vector3(-0.5f, 0.5f, 0.5f),
+        new Vector3(-0.5f, -0.5f, 0.5f),
+        new Vector3(-0.5f, -0.5f, -0.5f),
+
+        new Vector3(-0.5f, 0.5f, -0.5f),
+        new Vector3(0.5f, 0.5f, -0.5f),
+        new Vector3(0.5f, 0.5f, 0.5f),
+        new Vector3(-0.5f, 0.5f, 0.5f),
+
+        new Vector3(-0.5f, -0.5f, 0.5f),
+        new Vector3(0.5f, -0.5f, 0.5f),
+        new Vector3(0.5f, -0.5f, -0.5f),
+        new Vector3(-0.5f, -0.5f, -0.5f),
+    ];
+
+    List<Vector2> uvs =
+    [
+        new Vector2(0f, 1f),
+        new Vector2(1f, 1f),
+        new Vector2(1f, 0f),
+        new Vector2(0f, 0f),
+
+        new Vector2(0f, 1f),
+        new Vector2(1f, 1f),
+        new Vector2(1f, 0f),
+        new Vector2(0f, 0f),
+
+        new Vector2(0f, 1f),
+        new Vector2(1f, 1f),
+        new Vector2(1f, 0f),
+        new Vector2(0f, 0f),
+
+        new Vector2(0f, 1f),
+        new Vector2(1f, 1f),
+        new Vector2(1f, 0f),
+        new Vector2(0f, 0f),
+
+        new Vector2(0f, 1f),
+        new Vector2(1f, 1f),
+        new Vector2(1f, 0f),
+        new Vector2(0f, 0f),
+
+        new Vector2(0f, 1f),
+        new Vector2(1f, 1f),
+        new Vector2(1f, 0f),
+        new Vector2(0f, 0f),
     ];
 
     uint[] indices =
-    [
+    {
         0, 1, 2,
         2, 3, 0,
-    ];
 
-    float[] uvs =
-    [
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f,
-        0.0f, 0.0f
-    ];
+        4, 5, 6,
+        6, 7, 4,
+
+        8, 9, 10,
+        10, 11, 8,
+
+        12, 13, 14,
+        14, 15, 12,
+
+        16, 17, 18,
+        18, 19, 16,
+
+        20, 21, 22,
+        22, 23, 20
+    };
+
+    float yRotation = 0.0f;
+    float zRotation = 0.0f;
 
     int vertexArrayObject;
     int vertexBufferObject;
@@ -66,7 +134,7 @@ public class Game : GameWindow
         vertexBufferObject = GL.GenBuffer();
 
         GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
-        GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
+        GL.BufferData(BufferTarget.ArrayBuffer, vertices.Count * Vector3.SizeInBytes, vertices.ToArray(), BufferUsageHint.StaticDraw);
 
         GL.BindVertexArray(vertexArrayObject);
         GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 0, 0);
@@ -92,7 +160,7 @@ public class Game : GameWindow
 
         textureBufferObject = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.ArrayBuffer, textureBufferObject);
-        GL.BufferData(BufferTarget.ArrayBuffer, uvs.Length * sizeof(float), uvs, BufferUsageHint.StaticDraw);
+        GL.BufferData(BufferTarget.ArrayBuffer, uvs.Count * Vector2.SizeInBytes, uvs.ToArray(), BufferUsageHint.StaticDraw);
 
         GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 0, 0);
         GL.EnableVertexArrayAttrib(vertexArrayObject, 1);
@@ -131,6 +199,8 @@ public class Game : GameWindow
             Logger.Error("main", string.Concat("An error occured while creating the shaders:", '\n', programLog));
         }
 
+        GL.Enable(EnableCap.DepthTest);
+
         base.OnLoad();
     }
 
@@ -149,19 +219,34 @@ public class Game : GameWindow
 
     protected override void OnUpdateFrame(FrameEventArgs args)
     {
+        yRotation += (float)args.Time;
+        zRotation += (float)args.Time / 2.0f;
+
         base.OnUpdateFrame(args);
     }
 
     protected override void OnRenderFrame(FrameEventArgs args)
     {
         GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        GL.Clear(ClearBufferMask.ColorBufferBit);
+        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+        Matrix4 model = Matrix4.CreateRotationY(yRotation) * Matrix4.CreateRotationZ(zRotation) * Matrix4.CreateTranslation(new Vector3(0.0f, 0.0f, -5.0f));
+        Matrix4 view = Matrix4.Identity;
+        Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(60.0f), windowWidth / windowHeight, 0.1f, 100.0f);
+
+        int modelLocation = GL.GetUniformLocation(shaderProgram, "Model");
+        int viewLocation = GL.GetUniformLocation(shaderProgram, "View");
+        int projectionLocation = GL.GetUniformLocation(shaderProgram, "Projection");
+
+        GL.UniformMatrix4(modelLocation, true, ref model);
+        GL.UniformMatrix4(viewLocation, true, ref view);
+        GL.UniformMatrix4(projectionLocation, true, ref projection);
 
         GL.UseProgram(shaderProgram);
         GL.BindVertexArray(vertexArrayObject);
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
         GL.BindTexture(TextureTarget.Texture2D, texture);
-        GL.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, 0);
+        GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
 
         Context.SwapBuffers();
 
@@ -178,7 +263,7 @@ class Program
 {
     public static void Main()
     {
-        Game game = new Game(1280, 720);
+        Game game = new Game(720, 720);
         game.Run();
     }
 }
